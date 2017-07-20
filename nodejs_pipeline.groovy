@@ -13,7 +13,7 @@ node {
    }
    stage('docker build and push') {
      docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-       def app = docker.build("wardviaene/docker-nodejs-demo:${commit_id}", '.').push()
+       def app = docker.build("brunopadz/nodejs_app:${commit_id}", '.').push()
      }
    }
 }
