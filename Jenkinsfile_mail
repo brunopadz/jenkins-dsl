@@ -1,0 +1,36 @@
+node {
+
+  // Config 
+  def to = emailextrecipients([
+          [$class: 'CulpritsRecipientProvider'],
+          [$class: 'DevelopersRecipientProvider'],
+          [$class: 'RequesterRecipientProvider']
+  ])
+
+  // Job
+  try {
+    stage('build') {
+      println('Ate agora beleza...')
+    }
+    stage('test') {
+      println('Teste falhou!')
+      sh 'exit 1'
+    }
+  } catch(e) {
+    // Marca o build como failed
+    currentBuild.result = "FAILURE";
+    // Seta vars
+    def subject = "${env.JOB_NAME} - Build #${env.BUILD_NUMBER} ${currentBuild.result}"
+    def content = '${JELLY_SCRIPT,template="html"}'
+
+    // Manda email!
+    if(to != null && !to.isEmpty()) {
+      emailext(body: content, mimeType: 'text/html',
+         replyTo: '$DEFAULT_REPLYTO', subject: subject,
+         to: to, attachLog: true )
+    }
+
+    // Marca build atual como failed e mostra o erro
+    throw e;
+  }
+}
